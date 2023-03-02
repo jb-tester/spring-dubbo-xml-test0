@@ -1,0 +1,41 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.mytests.spring.dubbo.xml.test0"/>
+
+    <dubbo:application name="dubbo-xml-provider"/>
+
+    <!--  multicast: -->
+    <dubbo:registry id="multicast-registry" address="multicast://224.1.1.1:9099" group="multicast"/>
+    <dubbo:protocol id="multicast-protocol" name="dubbo" port="20880" />
+    <dubbo:service group="multicast" registry="multicast-registry" protocol="multicast-protocol" interface="com.mytests.spring.dubbo.xml.test0.FooService" ref="multicast-foo-service"/>
+    <bean id="multicast-foo-service" class="com.mytests.spring.dubbo.xml.test0.FooMulticastProvider"/>
+
+    <!-- zookeeper: -->
+    <dubbo:registry address="zookeeper://${zookeeper.address:127.0.0.1}:2181" client="zkclient" group="zookeeper"/>
+    <dubbo:protocol id="zookeeper-protocol" name="dubbo" />
+    <dubbo:provider id="provider1" token="true"/>
+    <dubbo:service provider="provider1" group="zookeeper" protocol="zookeeper-protocol" interface="com.mytests.spring.dubbo.xml.test0.FooService" ref="zookeeper-foo-service"/>
+    <bean id="zookeeper-foo-service" class="com.mytests.spring.dubbo.xml.test0.FooZookeeperProvider"/>
+
+    <!-- simple: -->
+
+
+    <dubbo:protocol id="simple-protocol" port="9090" name="dubbo"/>
+    <!-- registry service configuration -->
+    <dubbo:service interface="org.apache.dubbo.registry.RegistryService" ref="registryService" registry="N/A" ondisconnect="disconnect" callbacks="1000">
+        <dubbo:method name="subscribe"><dubbo:argument index="1" callback="true" /></dubbo:method>
+        <dubbo:method name="unsubscribe"><dubbo:argument index="1" callback="false" /></dubbo:method>
+    </dubbo:service>
+    <!-- simple registry server implementation -->
+    <bean id="registryService" class="org.apache.dubbo.registry.dubbo.SimpleRegistryService" />
+
+    <dubbo:registry address="127.0.0.1:9090" group="simple" version="1.0.0" />
+    <dubbo:service interface="com.mytests.spring.dubbo.xml.test0.FooService" group="simple" protocol="simple-protocol" ref="simple-foo-service"/>
+    <bean id="simple-foo-service" class="com.mytests.spring.dubbo.xml.test0.FooSimpleProvider"/>
+
+</beans>

@@ -1,0 +1,22 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:annotation-config/>
+    <context:component-scan base-package="com.mytests.spring.dubbo.xml.test0"/>
+    <dubbo:application name="dubbo-xml-consumer"/>
+
+    <!--  multicast: -->
+    <dubbo:registry address="multicast://224.1.1.1:9099" group="multicast"/>
+    <dubbo:reference id="foo-multi" group="multicast" check="true" interface="com.mytests.spring.dubbo.xml.test0.FooService"/>
+
+    <!-- zookeeper: -->
+    <dubbo:registry address="zookeeper://${zookeeper.address:127.0.0.1}:2181" group="zookeeper"/>
+    <dubbo:reference id="foo-zookeeper" group="zookeeper" check="true" interface="com.mytests.spring.dubbo.xml.test0.FooService"/>
+
+    <!-- simple: -->
+    <dubbo:registry address="127.0.0.1:9090" group="simple" version="1.0.0" />
+    <dubbo:reference id="foo-simple" group="simple" check="true" interface="com.mytests.spring.dubbo.xml.test0.FooService"/>
+
+</beans>
